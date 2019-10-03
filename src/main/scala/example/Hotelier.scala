@@ -1,20 +1,57 @@
 package example
 
 object Hotelier extends App {
-  def solve10(events: String): String = {
-    class Room(var state: Int)
-    val rooms = (0 to 9).map(_ => new Room(0))
+  var N = 10
+
+  var isInitiallyEmpty = true
+
+  def solve(events: String): String = solve(events.split(""))
+
+  def solve(events: Seq[String]): String = {
+    import scala.collection.mutable
+    val emptyRooms: mutable.TreeSet[Int] = if (isInitiallyEmpty)
+      collection.mutable.TreeSet.from(0 until N)
+    else collection.mutable.TreeSet()
 
     events.foreach {
-      case 'L' => rooms.collectFirst { case room if room.state == 0 => room }.foreach(_.state = 1)
-      case 'R' => rooms.reverse.collectFirst { case room if room.state == 0 => room }.foreach(_.state = 1)
-      case n => rooms(Character.getNumericValue(n)).state = 0
+      case "L" =>
+        val firstEmpty = emptyRooms.min
+        emptyRooms.
+        emptyRooms.remove(firstEmpty)
+      case "R" =>
+        val firstEmpty = emptyRooms.max
+        emptyRooms.remove(firstEmpty)
+      case n =>
+        emptyRooms.add(Integer.parseInt(n))
     }
-    rooms.map(_.state).mkString
+    val result = (0 until N).map(room => if (emptyRooms.contains(room)) "0" else "1").mkString
+    result
   }
 
-  assert(solve10("LLRL1RL1") == "1010000011")
-  assert(solve10("LLLLLLLLLL") == "1111111111")
-  assert(solve10("RRRRRRRRRR0123456789LLLLLRRRRR") == "1111111111")
+  assert(solve("LLRL1RL1") == "1010000011")
+  assert(solve("L0L0LLRR9") == "1100000010")
+  assert(solve("LLLLLLLLLL") == "1111111111")
+  assert(solve("RRRRRRRRRR0123456789LLLLLRRRRR") == "1111111111")
+
+  //warmup
+
+  {
+    N = 10000
+    val input = scala.io.Source.fromFile("/Users/antanasb/Code/wix/pep/hotelier-large.txt").getLines().toSeq
+    (0 to 20).foreach(_ => solve(input))
+    val startTime = System.currentTimeMillis()
+    println("Large Start")
+    solve(input)
+    println(s"Solved in: ${System.currentTimeMillis() - startTime}ms")
+  }
+
+  {
+    isInitiallyEmpty = false
+    val input = scala.io.Source.fromFile("/Users/antanasb/Code/wix/pep/hotelier-mega.txt").getLines().toSeq
+    val startTime = System.currentTimeMillis()
+    println("Mega Start")
+    solve(input)
+    println(s"Solved in: ${System.currentTimeMillis() - startTime}ms")
+  }
 }
 
