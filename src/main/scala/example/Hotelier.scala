@@ -16,7 +16,6 @@ object Hotelier extends App {
     events.foreach {
       case "L" =>
         val firstEmpty = emptyRooms.min
-        emptyRooms.
         emptyRooms.remove(firstEmpty)
       case "R" =>
         val firstEmpty = emptyRooms.max
@@ -33,12 +32,11 @@ object Hotelier extends App {
   assert(solve("LLLLLLLLLL") == "1111111111")
   assert(solve("RRRRRRRRRR0123456789LLLLLRRRRR") == "1111111111")
 
-  //warmup
-
   {
     N = 10000
     val input = scala.io.Source.fromFile("/Users/antanasb/Code/wix/pep/hotelier-large.txt").getLines().toSeq
-    (0 to 20).foreach(_ => solve(input))
+    //warmup
+    //(0 to 20).foreach(_ => solve(input))
     val startTime = System.currentTimeMillis()
     println("Large Start")
     solve(input)
