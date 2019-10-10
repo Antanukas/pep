@@ -45,21 +45,49 @@ object WordSearch extends App {
 
   def solveCurved(grid: Array[Array[Char]], target: Array[Char]): Boolean = {
 
-    def findWord(currentRow: Int, currentTarget: Array[Char], found: Array[Char]): Boolean = {
-      println(currentRow)
-      if (currentRow >= grid.length && !found.sameElements(target)) false
-      else if (found.sameElements(target)) true
-      else if (grid(currentRow).containsSlice(currentTarget)) {
-        val newFound = found ++ currentTarget
-        val newCurrentTarget = target.slice(target.indexOfSlice(newFound) + newFound.length, target.length)
-        findWord(currentRow + 1, newCurrentTarget, newFound)
-      } else if (currentTarget.length > 0) {
-        findWord(currentRow, currentTarget.slice(0, currentTarget.length - 1), found)
-      } else {
-        findWord(currentRow - 1, currentTarget.slice(0, currentTarget.length - 1), found)
+    var startedRowAt, startedAtColumn, currentRow, currentColumn, found = 0
+
+    /*
+       XFOXX
+       XFOXX
+       XXAMX
+       XXXXX
+     */
+    while(currentRow < grid.length - 1) {
+      if (startedAtColumn >= grid(currentRow).length - 1) {
+        currentRow += 1
+        startedRowAt = currentRow
+        found = 0
+        currentColumn = 0
+        startedAtColumn = 0
+      } else if (currentColumn >= grid(currentRow).length) {
+        currentRow = startedRowAt
+        found = 0
+        currentColumn = startedAtColumn + 1
+        startedAtColumn = currentColumn
       }
+
+      var foundAtLeastOne = false
+      while(grid(currentRow)(currentColumn) == target(found)
+        && currentColumn < grid(currentRow).length - 1
+      ) {
+        if (found == target.length - 1) return true
+        if (grid(currentRow)(currentColumn + 1) == target(found + 1)) {
+          currentColumn += 1
+        }
+        found += 1
+        foundAtLeastOne = true
+      }
+      if (currentColumn >= grid(currentRow).length || (found > 0 && !foundAtLeastOne)) {
+        startedAtColumn += 1
+        currentColumn = startedAtColumn
+        found = 0
+      }
+      else if (foundAtLeastOne) currentRow += 1
+      else currentColumn += 1
     }
-    findWord(0, target, Array())
+
+    false
   }
 
   def prettyPrint(grid: Seq[Seq[Char]]): Unit = {
@@ -93,6 +121,24 @@ object WordSearch extends App {
       target = "FOAM") == true
   )
 
+  assert(
+    solveCurved(
+      """XFXXX
+        |XOAXX
+        |XXMXX
+        |XXXXX""".stripMargin,
+      target = "FOAM") == true
+  )
+
+  assert(
+    solveCurved(
+      """XFXXX
+        |XOAXX
+        |XXMXX
+        |XXXXX""".stripMargin,
+      target = "FOAMZZ") == false
+  )
+
   val input = Source.fromFile("/Users/antanasb/Code/wix/pep/matrix2000x2000.txt").getLines().toSeq
 
   solveBig(input, target = "B" * 1000)
@@ -122,7 +168,7 @@ object WordSearch extends App {
     assert(
       solveCurved(
         abra,
-        target = "rarcdbxbaa") == true
+        target = "xaxbra") == true
     )
   }
 }
