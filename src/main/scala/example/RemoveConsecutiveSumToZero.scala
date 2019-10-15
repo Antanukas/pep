@@ -5,44 +5,50 @@ import scala.io.Source
 
 object RemoveConsecutiveSumToZero extends App {
 
-  def solve(numbers: String): String = {
-    answer(solve(fromString(numbers)))
-  }
-  // 10, 15, 12 9 10 14 10
-  // 10 -> 5 -> -3 -> -3 -> 1 -> 4 -> -4
   def solve(numbers: Node): Node = {
-    //println("sums", sums(numbers))
-    //println("answ", answer(numbers))
-
-    var begining = numbers
+    var beginning = numbers
     var current = Option(numbers)
 
-    var seen = mutable.Map[Long, Node]()
+    var sums = mutable.Map[Long, Node]()
     while (current.isDefined) {
-      if (current.get.value == 0) {
-        // just proceed
-      } else if (current.get.sum == 0) {
-        begining = current.get.next.get
-        seen = mutable.Map[Long, Node]()
-      } else if (seen.contains(current.get.sum)) {
-        val first = seen(current.get.sum)
-        //println("Cycle", first.value, current.get.value, seen.keys)
+      // Handle corner cases when begins with zero sequence or ends with zero sequence
+      if (current.get.sum == 0) {
+        beginning = current.get.next.get
+        sums = mutable.Map[Long, Node]()
+      } else if (sums.contains(current.get.sum)) {
+        val first = sums(current.get.sum)
         var cleaner = first.next.get
-        while(!current.contains(cleaner)) {
-          //println("cleaning", cleaner.sum, cleaner.value)
-          seen.remove(cleaner.sum)
+        while (!current.contains(cleaner)) {
+          sums.remove(cleaner.sum)
           cleaner = cleaner.next.get
         }
         first.next = current.get.next
-        //seen = mutable.Map[Long, Node]()
-        seen.put(first.sum, first)
       } else {
-        seen.put(current.get.sum, current.get)
+        sums.put(current.get.sum, current.get)
       }
-      //println("Seen", seen.keys)
       current = current.get.next
     }
-    begining
+    beginning
+  }
+
+  class Node(val value: Int, var next: Option[Node], val sum: Long)
+
+  assert(solve("1 -7 -6 4 -4 6 7") == "1")
+  assert(solve("1 -6 4 -4 6") == "1")
+  assert(solve("10 5 -3 -3 1 5 -3 -3 1 4 -4") == "10")
+  assert(solve("-1 -2 4 -4 5 2 1") == "-1 -2 5 2 1")
+  assert(solve("-1 1 3 1 -1 4 1 -1") == "3 4")
+  assert(solve("1 -1 3 4") == "3 4")
+  assert(solve("10 5 -3 -3 1 4 -4") == "10")
+  assert(solve("1 2 3 4") == "1 2 3 4")
+  assert(solve("3 -1 1 4") == "3 4")
+  assert(solve("3 4 1 -1") == "3 4")
+
+  {
+    val input = fromString(Source.fromFile("/Users/antanasb/Code/wix/pep/list.txt").getLines().next())
+    val startTime = System.currentTimeMillis()
+    println("result", answer(solve(input)))
+    println(s"Solved in: ${System.currentTimeMillis() - startTime}ms")
   }
 
   def fromString(s: String): Node = {
@@ -61,7 +67,7 @@ object RemoveConsecutiveSumToZero extends App {
     }
     first
   }
-
+  
   def answer(numbers: Node): String = {
     val s = new StringBuilder
     var current = Option(numbers)
@@ -73,7 +79,7 @@ object RemoveConsecutiveSumToZero extends App {
     s.toString()
   }
 
-  def sums(numbers: Node): String = {
+  def printSums(numbers: Node): String = {
     val s = new StringBuilder
     var current = Option(numbers)
     while (current.isDefined) {
@@ -84,22 +90,7 @@ object RemoveConsecutiveSumToZero extends App {
     s.toString()
   }
 
-  class Node(val value: Int, var next: Option[Node], val sum: Long)
-
-  assert(solve("10 5 -3 -3 1 5 -3 -3 1 4 -4") == "10")
-  assert(solve("1 -7 -6 4 -4 6 7") == "1")
-  assert(solve("1 -6 4 -4 6") == "1")
-  assert(solve("-1 1 3 1 -1 4 1 -1") == "3 4")
-  assert(solve("1 -1 3 4") == "3 4")
-  assert(solve("10 5 -3 -3 1 4 -4") == "10")
-  assert(solve("1 2 3 4") == "1 2 3 4")
-  assert(solve("3 -1 1 4") == "3 4")
-  assert(solve("3 4 1 -1") == "3 4")
-
-  {
-    val input = fromString(Source.fromFile("/Users/antanasb/Code/wix/pep/list.txt").getLines().next())
-    val startTime = System.currentTimeMillis()
-    println("result", solve(input))
-    println(s"Solved in: ${System.currentTimeMillis() - startTime}ms")
+  def solve(numbers: String): String = {
+    answer(solve(fromString(numbers)))
   }
 }
