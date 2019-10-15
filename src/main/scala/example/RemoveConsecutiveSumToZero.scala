@@ -96,5 +96,10 @@ object RemoveConsecutiveSumToZero extends App {
   assert(solve("3 -1 1 4") == "3 4")
   assert(solve("3 4 1 -1") == "3 4")
 
-  println("result", solve(Source.fromFile("/Users/antanasb/Code/wix/pep/list.txt").getLines().next()))
+  {
+    val input = fromString(Source.fromFile("/Users/antanasb/Code/wix/pep/list.txt").getLines().next())
+    val startTime = System.currentTimeMillis()
+    println("result", solve(input))
+    println(s"Solved in: ${System.currentTimeMillis() - startTime}ms")
+  }
 }
