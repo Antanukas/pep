@@ -5,33 +5,30 @@ import scala.io.Source
 
 object RemoveConsecutiveSumToZero extends App {
 
-  def solve(numbers: Node): Node = {
-    var beginning = numbers
-    var current = Option(numbers)
+  def solve(initialNumbers: Node): Node = {
+    var beginning = initialNumbers
+    var maybeCurrent = Option(initialNumbers)
 
-    var sums = mutable.Map[Long, Node]()
-    while (current.isDefined) {
-      // Handle corner cases when begins with zero sequence or ends with zero sequence
-      if (current.get.sum == 0) {
-        beginning = current.get.next.get
-        sums = mutable.Map[Long, Node]()
-      } else if (sums.contains(current.get.sum)) {
-        val first = sums(current.get.sum)
-        var cleaner = first.next.get
-        while (!current.contains(cleaner)) {
-          sums.remove(cleaner.sum)
-          cleaner = cleaner.next.get
-        }
-        first.next = current.get.next
+    val sums = mutable.Map[Long, Node]()
+    var sum = 0
+    while (maybeCurrent.isDefined) {
+      val current = maybeCurrent.get
+      sum += current.value
+      if (sum == 0) {
+        beginning = current.next.get
+        sums.clear()
+      } else if (sums.contains(sum)) {
+        sums(sum).next = current.next
       } else {
-        sums.put(current.get.sum, current.get)
+        sums.put(sum, current)
       }
-      current = current.get.next
+      maybeCurrent = current.next
     }
+
     beginning
   }
 
-  class Node(val value: Int, var next: Option[Node], val sum: Long)
+  class Node(val value: Int, var next: Option[Node])
 
   assert(solve("1 -7 -6 4 -4 6 7") == "1")
   assert(solve("1 -6 4 -4 6") == "1")
@@ -53,12 +50,12 @@ object RemoveConsecutiveSumToZero extends App {
 
   def fromString(s: String): Node = {
     val numbers = s.split(" ").map(_.toInt)
-    val first = new Node(numbers(0), next = None, sum = numbers(0))
+    val first = new Node(numbers(0), next = None)
     var current = first
     var i = 1
     while (i < numbers.length) {
       if (numbers(i) != 0) {
-        val node = new Node(numbers(i), next = None, sum = current.sum + numbers(i))
+        val node = new Node(numbers(i), next = None)
         current.next = Some(node)
         current = node
       }
@@ -67,23 +64,12 @@ object RemoveConsecutiveSumToZero extends App {
     }
     first
   }
-  
+
   def answer(numbers: Node): String = {
     val s = new StringBuilder
     var current = Option(numbers)
     while (current.isDefined) {
       s.append(current.get.value)
-      if (current.get.next.isDefined) s.append(" ")
-      current = current.get.next
-    }
-    s.toString()
-  }
-
-  def printSums(numbers: Node): String = {
-    val s = new StringBuilder
-    var current = Option(numbers)
-    while (current.isDefined) {
-      s.append(current.get.sum)
       if (current.get.next.isDefined) s.append(" ")
       current = current.get.next
     }
