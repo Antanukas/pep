@@ -139,6 +139,15 @@ object WordSearch extends App {
       target = "FOAMZZ") == false
   )
 
+  assert(
+    solveCurved(
+      """XXXX
+        |FOAX
+        |XAMX
+        |XXXX""".stripMargin,
+      target = "FOAM") == true
+  )
+
   val input = Source.fromFile("/Users/antanasb/Code/wix/pep/matrix2000x2000.txt").getLines().toSeq
 
   solveBig(input, target = "B" * 1000)
