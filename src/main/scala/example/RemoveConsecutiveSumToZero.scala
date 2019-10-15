@@ -8,11 +8,11 @@ object RemoveConsecutiveSumToZero extends App {
   def solve(numbers: String): String = {
     answer(solve(fromString(numbers)))
   }
-  //10, 15, 12 9 10 14 10
+  // 10, 15, 12 9 10 14 10
   // 10 -> 5 -> -3 -> -3 -> 1 -> 4 -> -4
   def solve(numbers: Node): Node = {
-    println("sums", sums(numbers))
-    println("answ", answer(numbers))
+    //println("sums", sums(numbers))
+    //println("answ", answer(numbers))
 
     var begining = numbers
     var current = Option(numbers)
@@ -26,9 +26,15 @@ object RemoveConsecutiveSumToZero extends App {
         seen = mutable.Map[Long, Node]()
       } else if (seen.contains(current.get.sum)) {
         val first = seen(current.get.sum)
-        println("Cycle", first.value, current.get.value)
+        //println("Cycle", first.value, current.get.value, seen.keys)
+        var cleaner = first.next.get
+        while(!current.contains(cleaner)) {
+          //println("cleaning", cleaner.sum, cleaner.value)
+          seen.remove(cleaner.sum)
+          cleaner = cleaner.next.get
+        }
         first.next = current.get.next
-        seen = mutable.Map[Long, Node]()
+        //seen = mutable.Map[Long, Node]()
         seen.put(first.sum, first)
       } else {
         seen.put(current.get.sum, current.get)
@@ -53,7 +59,6 @@ object RemoveConsecutiveSumToZero extends App {
 
       i += 1
     }
-    println("size", numbers.size)
     first
   }
 
@@ -81,16 +86,15 @@ object RemoveConsecutiveSumToZero extends App {
 
   class Node(val value: Int, var next: Option[Node], val sum: Long)
 
-  println(solve("1 -6 4 -4 6"))
+  assert(solve("10 5 -3 -3 1 5 -3 -3 1 4 -4") == "10")
+  assert(solve("1 -7 -6 4 -4 6 7") == "1")
   assert(solve("1 -6 4 -4 6") == "1")
-  println(solve("-1 1 0 4 0 1 -1"))
   assert(solve("-1 1 3 1 -1 4 1 -1") == "3 4")
   assert(solve("1 -1 3 4") == "3 4")
-  assert(solve("10 5 -3 -3 1 5 -3 -3 1 4 -4") == "10")
   assert(solve("10 5 -3 -3 1 4 -4") == "10")
   assert(solve("1 2 3 4") == "1 2 3 4")
   assert(solve("3 -1 1 4") == "3 4")
   assert(solve("3 4 1 -1") == "3 4")
 
-  //println(solve(Source.fromFile("/Users/antanasb/Code/wix/pep/list.txt").getLines().next()))
+  println("result", solve(Source.fromFile("/Users/antanasb/Code/wix/pep/list.txt").getLines().next()))
 }
