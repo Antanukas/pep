@@ -44,7 +44,7 @@ object RemoveConsecutiveSumToZero extends App {
   {
     val input = fromString(Source.fromFile("/Users/antanasb/Code/wix/pep/list.txt").getLines().next())
     val startTime = System.currentTimeMillis()
-    println("result", answer(solve(input)))
+    println("result", toString(solve(input)))
     println(s"Solved in: ${System.currentTimeMillis() - startTime}ms")
   }
 
@@ -65,7 +65,7 @@ object RemoveConsecutiveSumToZero extends App {
     first
   }
 
-  def answer(numbers: Node): String = {
+  def toString(numbers: Node): String = {
     val s = new StringBuilder
     var current = Option(numbers)
     while (current.isDefined) {
@@ -77,6 +77,6 @@ object RemoveConsecutiveSumToZero extends App {
   }
 
   def solve(numbers: String): String = {
-    answer(solve(fromString(numbers)))
+    toString(solve(fromString(numbers)))
   }
 }
