@@ -5,7 +5,7 @@ import scala.io.Source
 
 object RemoveConsecutiveSumToZero extends App {
 
-  def solve(initialNumbers: Node): Node = {
+  def solve(initialNumbers: Node): Option[Node] = {
     var beginning = initialNumbers
     var maybeCurrent = Option(initialNumbers)
 
@@ -15,7 +15,7 @@ object RemoveConsecutiveSumToZero extends App {
       val current = maybeCurrent.get
       sum += current.value
       if (sum == 0) {
-        beginning = current.next.get
+        beginning = if (current.next.isDefined) current.next.get else return None
         sums.clear()
       } else if (sums.contains(sum)) {
         sums(sum).next = current.next
@@ -25,13 +25,15 @@ object RemoveConsecutiveSumToZero extends App {
       maybeCurrent = current.next
     }
 
-    beginning
+    Some(beginning)
   }
 
   class Node(val value: Int, var next: Option[Node])
 
+  assert(solve("1 -1") == "")
   assert(solve("1 -7 -6 4 -4 6 7") == "1")
   assert(solve("1 -6 4 -4 6") == "1")
+  assert(solve("0 1 0 -6 4 -4 6 0") == "1")
   assert(solve("10 5 -3 -3 1 5 -3 -3 1 4 -4") == "10")
   assert(solve("-1 -2 4 -4 5 2 1") == "-1 -2 5 2 1")
   assert(solve("-1 1 3 1 -1 4 1 -1") == "3 4")
@@ -44,7 +46,7 @@ object RemoveConsecutiveSumToZero extends App {
   {
     val input = fromString(Source.fromFile("/Users/antanasb/Code/wix/pep/list.txt").getLines().next())
     val startTime = System.currentTimeMillis()
-    println("result", toString(solve(input)))
+    println("result", solve(input).map(toString).getOrElse(""))
     println(s"Solved in: ${System.currentTimeMillis() - startTime}ms")
   }
 
@@ -77,6 +79,6 @@ object RemoveConsecutiveSumToZero extends App {
   }
 
   def solve(numbers: String): String = {
-    toString(solve(fromString(numbers)))
+    solve(fromString(numbers)).map(toString).getOrElse("")
   }
 }

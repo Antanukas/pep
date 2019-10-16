@@ -1,0 +1,4 @@
+#-XX:+UnlockExperimentalVMOptions
+#-XX:+UseEpsilonGC
+# -Xms2G
+# -Xmx2G
