@@ -19,8 +19,26 @@ object FirstPositiveInteger extends App {
     }
   }
 
-  assert(solveDumb(Array(3, 4, -1, 1)) == 2)
-  assert(solveDumb(Array(1, 2, 3, 4, 5)) == 6)
-  assert(solveDumb(Array(1, 2, 4, 5)) == 3)
-  assert(solveDumb((1 until (Int.MaxValue/ 4)).toArray) == Int.MaxValue)
+  def solve2(arr: Array[Int]): Int = {
+    var i = 0
+    val sorted = arr.sorted
+    var max = 0
+    while (i < sorted.length) {
+      if (sorted(i) < 1) {
+        max = sorted(i + 1)
+      } else if (sorted(i) == max + 1) {
+        max += 1
+      } else if (sorted(i) > max + 1) {
+        return max + 1
+      }
+      i += 1
+    }
+    max + 1
+  }
+
+  assert(solve2(Array(3, 4, -1, 1)) == 2)
+  assert(solve2(Array(1, 2, 3, 4, 5)) == 6)
+  assert(solve2(Array(1, 2, 4, 5)) == 3)
+  assert(solve2(Array(-1, 1, -1, 2, 4, 5, -1)) == 3)
+  assert(solve2((1 until (Int.MaxValue / 8)).toArray) == (Int.MaxValue / 8))
 }
