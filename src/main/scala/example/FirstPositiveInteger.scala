@@ -1,5 +1,7 @@
 package example
 
+import scala.collection.mutable
+
 object FirstPositiveInteger extends App {
   def solveDumb(arr: Array[Int]): Int = {
     val positives = arr.toSet.filter(_ > 0)
@@ -36,9 +38,30 @@ object FirstPositiveInteger extends App {
     max + 1
   }
 
-  assert(solve2(Array(3, 4, -1, 1)) == 2)
-  assert(solve2(Array(1, 2, 3, 4, 5)) == 6)
-  assert(solve2(Array(1, 2, 4, 5)) == 3)
-  assert(solve2(Array(-1, 1, -1, 2, 4, 5, -1)) == 3)
-  assert(solve2((1 until (Int.MaxValue / 8)).toArray) == (Int.MaxValue / 8))
+  def solve3(arr: Array[Int]): Int = {
+    var i = 0
+    var low = 1
+    var high = arr(0)
+    var seen = mutable.Set[Int]()
+    while (i < arr.length) {
+      if (arr(i) == high) {
+        high = arr(i) + 1
+      }
+      if (arr(i) == low) {
+        low += 1
+      }
+      seen += arr(i)
+      i += 1
+    }
+    if (seen.contains(low)) high else low
+  }
+
+
+  assert(solve3(Array(1, 2, 3, 2, 5, 1)) == 4)
+  assert(solve3(Array(3, 4, -1, 1, 2, 6)) == 5)
+  assert(solve3(Array(3, 4, -1, 1)) == 2)
+  assert(solve3(Array(1, 2, 3, 4, 5)) == 6)
+  assert(solve3(Array(1, 2, 4, 5)) == 3)
+  assert(solve3(Array(-1, 1, -1, 2, 4, 5, -1)) == 3)
+  //assert(solve3((1 until (Int.MaxValue / 8)).toArray) == (Int.MaxValue / 8))
 }
