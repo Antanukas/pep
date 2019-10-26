@@ -40,23 +40,30 @@ object FirstPositiveInteger extends App {
 
   def solve3(arr: Array[Int]): Int = {
     var i = 0
-    var low = 1
-    var high = arr(0)
+    var next = 1
     var seen = mutable.Set[Int]()
     while (i < arr.length) {
-      if (arr(i) == high) {
-        high = arr(i) + 1
-      }
-      if (arr(i) == low) {
-        low += 1
+      if (arr(i) == next) {
+        next += 1
+        while (seen.contains(next)) {
+          next += 1
+        }
       }
       seen += arr(i)
       i += 1
     }
-    if (seen.contains(low)) high else low
+    next
   }
 
-
+/*
+  6 1
+  2 1
+  1 3
+  5 3
+  4 3
+  3
+  */
+  println(solve3(Array(3, 4, 5, 1, 2, 6)))
   assert(solve3(Array(1, 2, 3, 2, 5, 1)) == 4)
   assert(solve3(Array(3, 4, -1, 1, 2, 6)) == 5)
   assert(solve3(Array(3, 4, -1, 1)) == 2)
