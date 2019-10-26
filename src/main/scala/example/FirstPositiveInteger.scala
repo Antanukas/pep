@@ -38,19 +38,18 @@ object FirstPositiveInteger extends App {
     max + 1
   }
 
-  def solve3(arr: Array[Int]): Int = {
-    var i = 0
+  def solve3(arr: mutable.HashSet[Int]): Int = {
     var next = 1
-    var seen = mutable.Set[Int]()
-    while (i < arr.length) {
-      if (arr(i) == next) {
+    val seen = mutable.HashSet.apply[Int]()
+    arr.foreach { e =>
+      if (e == next) {
         next += 1
         while (seen.contains(next)) {
           next += 1
         }
       }
-      seen += arr(i)
-      i += 1
+      arr.remove(e)
+      seen.add(e)
     }
     next
   }
@@ -63,12 +62,23 @@ object FirstPositiveInteger extends App {
   4 3
   3
   */
-  println(solve3(Array(3, 4, 5, 1, 2, 6)))
-  assert(solve3(Array(1, 2, 3, 2, 5, 1)) == 4)
-  assert(solve3(Array(3, 4, -1, 1, 2, 6)) == 5)
-  assert(solve3(Array(3, 4, -1, 1)) == 2)
-  assert(solve3(Array(1, 2, 3, 4, 5)) == 6)
-  assert(solve3(Array(1, 2, 4, 5)) == 3)
-  assert(solve3(Array(-1, 1, -1, 2, 4, 5, -1)) == 3)
-  //assert(solve3((1 until (Int.MaxValue / 8)).toArray) == (Int.MaxValue / 8))
+  println(solve3(mutable.HashSet(3, 4, 5, 1, 2, 6)))
+  assert(solve3(mutable.HashSet(1, 2, 3, 2, 5, 1)) == 4)
+  assert(solve3(mutable.HashSet(3, 4, -1, 1, 2, 6)) == 5)
+  assert(solve3(mutable.HashSet(3, 4, -1, 1)) == 2)
+  assert(solve3(mutable.HashSet(1, 2, 3, 4, 5)) == 6)
+  assert(solve3(mutable.HashSet(1, 2, 4, 5)) == 3)
+  assert(solve3(mutable.HashSet(-1, 1, -1, 2, 4, 5, -1)) == 3)
+
+  val size = 10000000
+  val long = {
+    var i = 0
+    val set = mutable.HashSet.newBuilder[Int]
+    while (i < size) {
+      set.addOne(i)
+      i += 1
+    }
+    set.result()
+  }
+  assert(solve3(long) == size)
 }
