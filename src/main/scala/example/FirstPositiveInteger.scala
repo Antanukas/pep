@@ -39,19 +39,14 @@ object FirstPositiveInteger extends App {
   }
 
   def solve3(arr: mutable.HashSet[Int]): Int = {
-    var next = 1
-    val seen = mutable.HashSet.apply[Int]()
+    var i = 1
+    var max = 1
     arr.foreach { e =>
-      if (e == next) {
-        next += 1
-        while (seen.contains(next)) {
-          next += 1
-        }
-      }
-      arr.remove(e)
-      seen.add(e)
+      if (e > max) max = e
+      if (!arr.contains(i)) return i
+      if (e > 0) i += 1
     }
-    next
+    max + 1
   }
 
 /*
@@ -62,7 +57,6 @@ object FirstPositiveInteger extends App {
   4 3
   3
   */
-  println(solve3(mutable.HashSet(3, 4, 5, 1, 2, 6)))
   assert(solve3(mutable.HashSet(1, 2, 3, 2, 5, 1)) == 4)
   assert(solve3(mutable.HashSet(3, 4, -1, 1, 2, 6)) == 5)
   assert(solve3(mutable.HashSet(3, 4, -1, 1)) == 2)
