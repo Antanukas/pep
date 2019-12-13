@@ -1,13 +1,22 @@
 package example.aoc
 
-import java.util.concurrent.{ArrayBlockingQueue, Executors}
+import java.util.concurrent.{ArrayBlockingQueue, Executors, ThreadFactory}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.io.{Source, StdIn}
 
-object Day11 extends App {
-  implicit val ec = ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+object Day13 extends App {
+  implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(Executors.newCachedThreadPool(new ThreadFactory {
+    var c = 0
+    val tf = Executors.defaultThreadFactory
+    override def newThread(r: Runnable): Thread = {
+      val t = tf.newThread(r)
+      t.setName(s"my-thread-$c")
+      t
+    }
+  }))
+  //implicit val ec = ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
   val originalProgram = Source.fromFile("/Users/antanasb/Code/wix/pep/src/main/scala/example/aoc/program.in").getLines().next().split(",").map(BigInt(_))
 
   //runWithInputs()
@@ -26,14 +35,35 @@ object Day11 extends App {
   //println(run(Seq(9,7,8,5,6)))
   //println("it", runWithInputs())
 
+  def printBoard(b: Array[Array[Int]], score: Int) = {
+  //  Runtime.getRuntime.exec("cls")
+    val transposed = b.transpose
+    var i = 0
+    println("Score:", score)
+    while (i < transposed.length) {
+      var j = 0
+      while(j < transposed(i).length) {
+        val simbol = transposed(i)(j) match {
+          case 0 => " "
+          case 1 => "#"
+          case 2 => "."
+          case 3 => "_"
+          case 4 => "O"
+        }
+        print(simbol)
+        j += 1
+      }
+      println()
+      i += 1
+    }
+  }
+
+
   def run() = {
-    val q1 = new ArrayBlockingQueue[BigInt](2, true)
-    val q2 = new ArrayBlockingQueue[BigInt](2, true)
-    q1.put(-1)
+    val q1 = new ArrayBlockingQueue[BigInt](1, true)
+    val q2 = new ArrayBlockingQueue[BigInt](10000, true)
 
-
-
-    Future {
+   /* val f = Future {
       runWithInputs(
         name = "robot",
         readInput = q1.take(),
@@ -41,58 +71,87 @@ object Day11 extends App {
       )
     }
 
-    var currentCoord = (0, 0)
-    var currentDir = (0, 1)
-    var colors = Map.empty[(Int, Int), Int]
+    Await.result(f, Duration.Inf)
+*/
+/*    val grid = q2.toArray.map(_.toString.toInt)
+    println(grid.max)
+    println(grid.min)
 
-    def pp() = {
-      var i = -40
-      while (i < 40) {
-        var j = -40
-        while (j < 40) {
-          val color = colors.getOrElse((i, j), 0)
-          if (color == 1) print("#") else print(" ") //JHARBGCU
-                                                     //UCGBRAHJ
-          j += 1
+    val board = Array.fill(43, 43)(0)
+    var i = 0
+    while (i < grid.length - 3) {
+      val x = grid(i)
+      val y = grid(i + 1)
+      val tileId = grid(i + 2)
+      board(x)(y) = tileId
+      i += 3
+    }*/
+
+    //printBoard(board)
+
+    val m = new Object
+    var tile = 0
+    val board = Array.fill(43, 21)(0)
+    var score = 0
+    q1.clear()
+    val q3 = new ArrayBlockingQueue[BigInt](100, true)
+
+    def findX = board
+    /*q1.put(-1)
+    (1 to 100).foreach(_ => q1.put(0))*/
+
+    println("Lets play!!!")
+
+    Future {
+      runWithInputs(
+        coin = Some(2),
+        name = "robot",
+        //readInput = q1.take(),
+        readInput = {
+          //m.synchronized(printBoard(board, score))
+          //println()
+          //0,0,0,1,1,1,1,1,1   -1,0,0,0,0,0,0,0,0,0
+          //print("Input: ")
+          //val i = StdIn.readLine().toInt
+          //println()
+         // printBoard(board, score)
+          q1.take()
+        },
+        writeOutput = output => q3.put(output)
+      )
+
+      println("Game finished")
+    }
+
+    Future {
+      while (true) { Thread.sleep(1000); println("Scoras", score)}
+    }
+//77, 84   (7
+    Future {
+      var isFinished = false
+      try {
+        while (!isFinished) {
+          val x = q3.take().toInt
+          val y = q3.take().toInt
+          val tileId = q3.take().toInt
+          if (x == -1 && y == 0) {
+            score = tileId
+            //println("Score: ", tileId)
+            //isFinished = true
+          } else {
+            if (tileId == 3) tile = x
+            if (tileId == 4) {
+              val stick =  if (x == tile) 0 else if (x > tile) 1 else -1
+              q1.offer(stick)
+            }
+            board(x)(y) = tileId
+          }
         }
-        println()
-        i += 1
-      }
-    }
-
-    while(true) {
-      val color = q2.take().toInt
-      val direction = q2.take().toInt
-
-      colors += currentCoord -> color
-
-      currentDir = direction match {
-        case 1 =>
-          currentDir match {
-            case (0, 1) => (-1, 0)
-            case (-1, 0) => (0, -1)
-            case (0, -1) => (1, 0)
-            case (1, 0) => (0, 1)
-          }
-
-        case 0 =>
-          currentDir match {
-            case (0, 1) => (1, 0)
-            case (1, 0) => (0, -1)
-            case (0, -1) => (-1, 0)
-            case (-1, 0) => (0, 1)
-          }
+      } catch {
+        case e => e.printStackTrace()
       }
 
-      currentCoord = (currentCoord._1 + currentDir._1, currentCoord._2 + currentDir._2)
-      val currentColor = colors.getOrElse(currentCoord, 0)
-      q1.put(currentColor)
-      println("colors", colors.keySet)
-      pp()
-
     }
-
-
   }
 
   def run(inputs: Seq[Int]): BigInt = {
@@ -157,11 +216,17 @@ object Day11 extends App {
       name: String = "program",
       noun: Option[Int] = None,
       verb: Option[Int] = None,
-      readInput: => BigInt = StdIn.readLine().toInt,
-      writeOutput: BigInt => Unit = a => println(a)
+      readInput: => BigInt = {
+        println()
+        print("Input: ")
+        StdIn.readLine().toInt
+      },
+      writeOutput: BigInt => Unit = a => println(a),
+      coin: Option[Int] = None
   ): (BigInt, Seq[BigInt]) = {
     val program: Array[BigInt] = Array.fill(100000)(0)
     originalProgram.copyToArray(program)
+    coin.foreach(c => program(0) = c)
     if (noun.isDefined) {
       program(1) = noun.get
       program(2) = verb.get
@@ -203,12 +268,12 @@ object Day11 extends App {
         case 3 =>
           val address = pOut(1)
           val input = readInput
-          println(s"[$name] Input: $input")
+       //   println(s"[$name] Input: $input")
           program(address.toInt) = input
           pointer += 2
         case 4 =>
           val value = pIn(1)
-          println(s"[$name] Write output: $value")
+          //println(s"[$name] Write output: $value")
           writeOutput(value)
           outputs = outputs :+ value
           pointer += 2
@@ -240,3 +305,20 @@ object Day11 extends App {
 
 
 }
+
+/*
+...............15
+..........................26
+..........................26
+.........................25
+......................22
+.........................25
+.........................25
+......................22
+................16
+.....................21
+.....................21
+.................. 18
+...................... 22
+
+ */
