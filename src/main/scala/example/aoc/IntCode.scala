@@ -38,11 +38,11 @@ class IntCode(originalProgram: Array[BigInt]) {
         StdIn.readLine().toInt
       },
       writeOutput: BigInt => Unit = a => println(a),
-      coin: Option[Int] = None
+      zeroAddress: Option[Int] = None
   ): (BigInt, Seq[BigInt]) = {
     val program: Array[BigInt] = Array.fill(100000)(0)
     originalProgram.copyToArray(program)
-    coin.foreach(c => program(0) = c)
+    zeroAddress.foreach(c => program(0) = c)
     if (noun.isDefined) {
       program(1) = noun.get
       program(2) = verb.get
@@ -89,7 +89,7 @@ class IntCode(originalProgram: Array[BigInt]) {
           pointer += 2
         case 4 =>
           val value = pIn(1)
-          println(s"[$name] Write output: $value")
+       //   println(s"[$name] Write output: $value")
           writeOutput(value)
           outputs = outputs :+ value
           pointer += 2
