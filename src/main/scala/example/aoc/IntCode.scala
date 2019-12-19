@@ -84,13 +84,13 @@ class IntCode(originalProgram: Array[BigInt]) {
         case 3 =>
           val address = pOut(1)
           val input = readInput
-          println(s"[$name] Input: $input")
+     //     println(s"[$name] Input: $input")
           program(address.toInt) = input
           pointer += 2
         case 4 =>
           val value = pIn(1)
        //   println(s"[$name] Write output: $value")
-          writeOutput(value)
+         // writeOutput(value)
           outputs = outputs :+ value
           pointer += 2
         case 5 => //jump-if-true
